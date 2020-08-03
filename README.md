@@ -28,3 +28,9 @@ ill use it
 abhishek  11:24 AM
 WTFML: Well That’s Fantastic Machine Learning library
 ```
+# Examples
+To run the examples create a symbolic link to wtfml in the examples directory
+
+'''
+ln -s ../wtfml
+'''

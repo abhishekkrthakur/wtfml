@@ -70,13 +70,13 @@ class Model(nn.Module):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--data_path", type=str,
+        "--data_path", type=str, required=True
     )
     parser.add_argument(
         "--device", type=str,
     )
     parser.add_argument(
-        "--epochs", type=int,
+        "--epochs", type=int, default=20
     )
     args = parser.parse_args()
 
