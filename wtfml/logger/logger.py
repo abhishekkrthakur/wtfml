@@ -47,7 +47,7 @@ def log_gradients(model, batch=None, min_check=1e-10, max_check=10):
                 if max_grad >= max_check:
                     warnings.warn(
                         "Weight Gradient exploding during Batch - {} at layer ({} - {})."
-                        "Minimum weight at layer - {}".format(batch, i, layer._get_name(), max_grad),
+                        "Maximum weight at layer - {}".format(batch, i, layer._get_name(), max_grad),
                         category=RuntimeWarning,
                     )
 
@@ -66,6 +66,6 @@ def log_gradients(model, batch=None, min_check=1e-10, max_check=10):
                 if max_grad >= max_check:
                     warnings.warn(
                         "Bias Gradient exploding during Batch - {} at layer ({} - {})."
-                        "Minimum bias at layer - {}".format(batch, i, layer._get_name(), max_grad),
+                        "Maximum bias at layer - {}".format(batch, i, layer._get_name(), max_grad),
                         category=RuntimeWarning,
                     )
