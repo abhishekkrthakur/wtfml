@@ -6,6 +6,7 @@ import datetime
 import torch
 from tqdm import tqdm
 from ..utils import AverageMeter
+from ..logger import log_gradients
 
 try:
     from torch.cuda import amp
@@ -39,6 +40,7 @@ class Engine:
         fp16=False,
         model_fn=None,
         use_mean_loss=False,
+        log_grads = False
     ):
         """
         model_fn should take batch of data, device and model and return loss
@@ -65,6 +67,7 @@ class Engine:
             )
         self.use_mean_loss = use_mean_loss
         self.scaler = None
+        self.log_grads = log_grads
 
         if self.use_tpu and not _xla_available:
             raise Exception(
@@ -139,7 +142,12 @@ class Engine:
                 losses.update(reduced_loss.item(), data_loader.batch_size)
             else:
                 losses.update(loss.item(), data_loader.batch_size)
-
+            
+            # Log grads
+            if self.log_grads:
+                log_gradients(model=self.model, batch=b_idx)
+            
+            
             if not self.use_tpu:
                 tk0.set_postfix(loss=losses.avg)
             else:
