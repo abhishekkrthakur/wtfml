@@ -4,14 +4,16 @@ from typing import Union
 import xgboost as xgb
 from optuna import trial
 from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor, RandomForestClassifier, RandomForestRegressor
-from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge
+from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge, SGDClassifier, SGDRegressor
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.svm import LinearSVC, LinearSVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 
 from .enums import ProblemType
 
 
+@dataclass
 class Params:
     model: Union[
         RandomForestClassifier,
@@ -21,6 +23,8 @@ class Params:
         LinearSVC,
         DecisionTreeClassifier,
         DecisionTreeRegressor,
+        KNeighborsClassifier,
+        KNeighborsRegressor,
         LinearSVR,
         Lasso,
         Ridge,
@@ -28,6 +32,8 @@ class Params:
         MultinomialNB,
         LinearRegression,
         LogisticRegression,
+        SGDClassifier,
+        SGDRegressor,
         xgb.XGBClassifier,
         xgb.XGBRegressor,
     ]
@@ -233,6 +239,25 @@ class Params:
         params["loss"] = trial.suggest_categorical("loss", ["squared_loss", "huber", "epsilon_insensitive"])
         return params
 
+    def _knn_base_params(self):
+        params = {
+            "n_neighbors": trial.suggest_int("n_neighbors", 1, 100),
+            "weights": trial.suggest_categorical("weights", ["uniform", "distance"]),
+            "algorithm": trial.suggest_categorical("algorithm", ["ball_tree", "kd_tree", "brute"]),
+            "leaf_size": trial.suggest_int("leaf_size", 1, 100),
+            "p": trial.suggest_categorical("p", [1, 2]),
+            "metric": trial.suggest_categorical("metric", ["minkowski", "euclidean", "manhattan"]),
+        }
+        return params
+
+    def _knn_classifier_params(self):
+        params = self._knn_base_params()
+        return params
+
+    def _knn_regressor_params(self):
+        params = self._knn_base_params()
+        return params
+
     def fetch_params(self):
         if isinstance(self.model, RandomForestClassifier):
             params = self._rf_classifier_params()
@@ -262,6 +287,14 @@ class Params:
             params = self._gaussian_nb_params()
         elif isinstance(self.model, MultinomialNB):
             params = self._multinomial_nb_params()
+        elif isinstance(self.model, SGDClassifier):
+            params = self._sgd_classifier_params()
+        elif isinstance(self.model, SGDRegressor):
+            params = self._sgd_regressor_params()
+        elif isinstance(self.model, KNeighborsClassifier):
+            params = self._knn_classifier_params()
+        elif isinstance(self.model, KNeighborsRegressor):
+            params = self._knn_regressor_params()
         else:
             raise ValueError("Unknown model: {}".format(self.model))
 
