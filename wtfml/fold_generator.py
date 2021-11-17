@@ -7,7 +7,6 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-import scipy as sp
 from sklearn import model_selection
 
 from .enums import ProblemType
